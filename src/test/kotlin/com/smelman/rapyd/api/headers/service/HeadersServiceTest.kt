@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-internal class HeadersServiceImplTest {
+internal class HeadersServiceTest {
 
     private lateinit var headersService: HeadersServiceImpl
     private val accessKey = "testAccessKey"
