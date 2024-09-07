@@ -14,13 +14,13 @@ import kotlin.test.assertTrue
 
 internal class HeadersServiceTest {
 
-    private lateinit var headersService: HeadersServiceImpl
+    private lateinit var headersService: HeadersService
     private val accessKey = "testAccessKey"
     private val secretKey = "testSecretKey"
 
     @BeforeEach
     fun setup() {
-        headersService = HeadersServiceImpl(accessKey, secretKey)
+        headersService = HeadersService(accessKey, secretKey)
     }
 
     @Test

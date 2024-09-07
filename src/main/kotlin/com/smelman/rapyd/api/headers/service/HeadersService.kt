@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec
  * authenticity of a message by creating a message authentication code (MAC).
  */
 
-const val ALGORITHM = "HmacSHA256"
+internal const val ALGORITHM = "HmacSHA256"
 
 /**
  * The "%02x" format specifier is used in Kotlin (and Java) to format a byte as a two-character hexadecimal string.
@@ -25,9 +25,9 @@ const val ALGORITHM = "HmacSHA256"
  * For example, if the byte is 9, it will be formatted as 09.
  * x: Converts the byte to a lowercase hexadecimal string.
  */
-const val HEXADECIMAL_FORMATTER = "%02x"
+internal const val HEXADECIMAL_FORMATTER = "%02x"
 
-val SUPPORTED_HTTP_METHODS = setOf("get", "post", "put", "delete", "head", "options")
+internal val SUPPORTED_HTTP_METHODS = setOf("get", "post", "put", "delete", "head", "options")
 
 /**
  * Service class responsible for generating Rapyd API headers including HMAC signature.
@@ -39,7 +39,7 @@ val SUPPORTED_HTTP_METHODS = setOf("get", "post", "put", "delete", "head", "opti
  * @param objectMapper An optional [ObjectMapper] instance for JSON processing. If not provided,
  *                     a default [ObjectMapper] instance will be used.
  */
-class HeadersServiceImpl(
+class HeadersService(
     private val accessKey: String,
     private val secretKey: String,
     private val objectMapper: ObjectMapper = ObjectMapper()

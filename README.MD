@@ -3,6 +3,8 @@
 ## Overview
 
 The `rapyd-api-headers` library provides functionality for generating headers required for Rapyd API requests. It includes methods for creating HMAC SHA-256 signatures and other necessary headers.
+This library was developed based on the official Rapyd documentation.
+It provides a streamlined way to generate headers and manage requests when integrating with the Rapyd API, helping developers interact with Rapyd's powerful global payment platform more efficiently.
 
 **IMPORTANT:** Never share your access key and secret key publicly or with unauthorized personnel. Additionally, avoid enabling debug logging in production environments, as it may expose sensitive information.
 
@@ -30,7 +32,7 @@ Add the following dependency to your `build.gradle` file:
 
 ```kotlin
 dependencies {
-    implementation("com.smelman:rapyd-api-headers:1.0.0")
+    implementation("com.github.semyonmelman:rapyd-api-headers:1.0.3")
 }
 ```
 
