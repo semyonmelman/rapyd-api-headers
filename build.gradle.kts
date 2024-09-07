@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.9.21"
     `java-library`
     jacoco
+    `maven-publish`
 }
 
 group = "com.smelman"
@@ -73,7 +74,44 @@ if (gradlePropertiesFile.exists()) {
     gradleProperties.store(gradlePropertiesFile.outputStream(), null)
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            // Define the artifact coordinates
+            groupId = "com.smelman"
+            artifactId = "rapyd-api-headers"
+            version = "1.0.0"
+
+            // POM metadata
+            pom {
+                name.set("Rapyd API Headers")
+                description.set("A library for generating headers for Rapyd API requests")
+                url.set("https://github.com/semyonmelman/rapyd-api-headers") // Adjust to your GitHub repository URL
+
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("@semyonmelman")
+                        name.set("Melman Semyon")
+                        email.set("shkolar92@gmail.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/semyonmelman/rapyd-api-headers.git")
+                    developerConnection.set("scm:git:ssh://github.com/semyonmelman/rapyd-api-headers.git")
+                    url.set("https://github.com/semyonmelman/rapyd-api-headers")
+                }
+            }
+        }
+    }
 }
+
