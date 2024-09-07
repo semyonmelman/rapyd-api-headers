@@ -73,7 +73,6 @@ if (gradlePropertiesFile.exists()) {
     gradleProperties["org.gradle.jvmargs"] = "-Xmx4g -Xms1g -Xss2m"
     gradleProperties.store(gradlePropertiesFile.outputStream(), null)
 }
-
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
