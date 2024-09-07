@@ -23,10 +23,10 @@ internal class HeadersServiceTest {
         headersService = HeadersService(accessKey, secretKey)
     }
 
-    @Test
-    fun `generateRapydHeaders should generate correct headers`() {
+    @ParameterizedTest
+    @CsvSource("get", "post", "put", "delete", "head", "options")
+    fun `generateRapydHeaders should generate correct headers`(httpMethod: String) {
         // Mock the dependencies
-        val httpMethod = "POST"
         val path = "/v1/test"
         val body = mapOf("key" to "value")
 

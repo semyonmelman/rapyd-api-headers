@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.*
 import java.time.Instant
 import kotlin.math.abs
 
-class UtilsKtTest {
+internal class UtilsKtTest {
 
     @Test
     fun `generateSalt should produce a string of the specified length`() {

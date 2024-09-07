@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.semyonmelman:rapyd-api-headers:1.0.3")
+    implementation("com.github.semyonmelman:rapyd-api-headers:1.0.4")
 }
 ```
 
