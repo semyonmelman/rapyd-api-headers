@@ -62,8 +62,8 @@ class HeadersService(
      * @param body Optional request body.
      * @return A map of headers including the access key, salt, timestamp, and signature.
      */
-    fun <T> generateRapydHeaders(httpMethod: String, path: String, body: T?): Map<String, String> {
-        log.debug("Generating Rapyd headers for HTTP method: $httpMethod, path: $path, body: $body")
+    fun <T> generateRapydHeaders(httpMethod: String, path: String, body: T? = null): Map<String, String> {
+        log.debug("Generating Rapyd api headers for HTTP method: $httpMethod, path: $path, body: $body")
         validateParameters(httpMethod, path)
         val preCallResult = preCall(httpMethod, path, body)
         val headers = createSigHeaders(
@@ -76,15 +76,11 @@ class HeadersService(
     }
 
     private fun validateParameters(httpMethod: String, path: String) {
-        if (httpMethod.lowercase() !in SUPPORTED_HTTP_METHODS) {
-            throw IllegalArgumentException(
-                "Method $httpMethod is not supported, supported methods: $SUPPORTED_HTTP_METHODS"
-            )
+        require(httpMethod.lowercase() in SUPPORTED_HTTP_METHODS) {
+            "Method $httpMethod is not supported, supported methods: $SUPPORTED_HTTP_METHODS"
         }
-        if (!path.startsWith("/")){
-            throw IllegalArgumentException(
-                "Path variable should start from '/'"
-            )
+        require(path.startsWith("/")) {
+            "Path variable should start from '/'"
         }
     }
 
