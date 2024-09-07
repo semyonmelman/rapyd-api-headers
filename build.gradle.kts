@@ -72,3 +72,8 @@ if (gradlePropertiesFile.exists()) {
     gradleProperties["org.gradle.jvmargs"] = "-Xmx4g -Xms1g -Xss2m"
     gradleProperties.store(gradlePropertiesFile.outputStream(), null)
 }
+
+repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
