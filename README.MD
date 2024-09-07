@@ -31,6 +31,11 @@ Feel free to adjust any part of the content to better fit your needs!
 Add the following dependency to your `build.gradle` file:
 
 ```kotlin
+repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
+
 dependencies {
     implementation("com.github.semyonmelman:rapyd-api-headers:1.0.3")
 }
