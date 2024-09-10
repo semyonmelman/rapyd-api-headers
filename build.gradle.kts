@@ -18,6 +18,7 @@ val objectMapperVersion = "2.17.2"
 val junitJupiterVersion = "5.9.3"
 val slf4jVersion = "2.0.16"
 val logbackVersion = "1.5.7"
+val mockitoVersion = "5.5.0"
 
 
 dependencies {
@@ -28,6 +29,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation("org.mockito:mockito-core:$mockitoVersion") // For mocking
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 

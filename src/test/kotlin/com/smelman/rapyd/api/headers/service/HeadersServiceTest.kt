@@ -82,7 +82,7 @@ internal class HeadersServiceTest {
             headersService.generateRapydHeaders(httpMethod, path, body)
         }
         assertEquals(
-            "Method someWrongHttpMethod is not supported, supported methods: $SUPPORTED_HTTP_METHODS",
+            "Method someWrongHttpMethod is not supported. Supported methods are: $SUPPORTED_HTTP_METHODS",
             exception.message
         )
     }
@@ -99,7 +99,7 @@ internal class HeadersServiceTest {
             headersService.generateRapydHeaders(httpMethod, path, body)
         }
         assertEquals(
-            "Path variable should start from '/'",
+            "Path must start with '/'",
             exception.message
         )
     }

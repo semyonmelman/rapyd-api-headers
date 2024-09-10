@@ -10,19 +10,17 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * The HmacSHA256 algorithm is a combination of HMAC (Hash-based Message Authentication Code) and
- * the SHA-256 (Secure Hash Algorithm 256-bit) hashing algorithm. It is used for ensuring the integrity and
- * authenticity of a message by creating a message authentication code (MAC).
+ * The HmacSHA256 algorithm combines HMAC (Hash-based Message Authentication Code) with
+ * the SHA-256 (Secure Hash Algorithm 256-bit) hashing algorithm. It is used to ensure the integrity and
+ * authenticity of a message by generating a message authentication code (MAC).
  */
-
 internal const val ALGORITHM = "HmacSHA256"
 
 /**
  * The "%02x" format specifier is used in Kotlin (and Java) to format a byte as a two-character hexadecimal string.
  *
  * %: Marks the beginning of a format specifier.
- * 02: Ensures the output is at least 2 characters wide, and if the value is smaller, it pads it with leading zeroes.
- * For example, if the byte is 9, it will be formatted as 09.
+ * 02: Ensures the output is at least 2 characters wide, and pads with leading zeroes if necessary.
  * x: Converts the byte to a lowercase hexadecimal string.
  */
 internal const val HEXADECIMAL_FORMATTER = "%02x"
@@ -30,16 +28,16 @@ internal const val HEXADECIMAL_FORMATTER = "%02x"
 internal val SUPPORTED_HTTP_METHODS = setOf("get", "post", "put", "delete", "head", "options")
 
 /**
- * Service class responsible for generating Rapyd API headers including HMAC signature.
+ * Service class for generating Rapyd API headers, including HMAC signature.
  *
- * IMPORTANT: Never share the access key and secret key with unauthorized personnel or services.
+ * **IMPORTANT:** Never share your access key and secret key with unauthorized individuals or services.
  *
  * @param accessKey The access key for the Rapyd API.
  * @param secretKey The secret key for the Rapyd API.
  * @param objectMapper An optional [ObjectMapper] instance for JSON processing. If not provided,
  *                     a default [ObjectMapper] instance will be used.
  */
-class HeadersService(
+internal class HeadersService(
     private val accessKey: String,
     private val secretKey: String,
     private val objectMapper: ObjectMapper = ObjectMapper()
@@ -58,12 +56,55 @@ class HeadersService(
      * Generates the necessary headers for a Rapyd API call, including the HMAC signature.
      *
      * @param httpMethod The HTTP method (e.g., "GET", "POST").
-     * @param path The request path (e.g., "/v1/data/countries"). For more info -> https://docs.rapyd.net/
+     * @param path The request path (e.g., "/v1/data/countries"). For more information, see the Rapyd API documentation.
      * @param body Optional request body.
      * @return A map of headers including the access key, salt, timestamp, and signature.
      */
     fun <T> generateRapydHeaders(httpMethod: String, path: String, body: T? = null): Map<String, String> {
-        log.debug("Generating Rapyd api headers for HTTP method: $httpMethod, path: $path, body: $body")
+        return generateHeaders(httpMethod, path, body)
+    }
+
+    /**
+     * Generates the necessary headers for a Rapyd API call with custom salt and timestamp, including the HMAC signature.
+     *
+     * @param httpMethod The HTTP method (e.g., "GET", "POST").
+     * @param path The request path (e.g., "/v1/data/countries"). For more information, see the Rapyd API documentation.
+     * @param body Optional request body.
+     * @param salt Optional custom salt.
+     * @param timestamp Optional custom timestamp.
+     * @return A map of headers including the access key, custom salt, custom timestamp, and signature.
+     */
+    fun <T> generateRapydHeaders(
+        httpMethod: String,
+        path: String,
+        body: T? = null,
+        salt: String? = null,
+        timestamp: Long? = null,
+    ): Map<String, String> {
+        val (customSalt, customTimestamp, signature) = updateTimestampSaltSig(
+            httpMethod,
+            path,
+            body?.let { objectMapper.writeValueAsString(it) } ?: "",
+            salt,
+            timestamp
+        )
+        return createSigHeaders(
+            salt = customSalt,
+            timestamp = customTimestamp,
+            signature = signature
+        )
+    }
+
+    /**
+     * Generates the necessary headers for a Rapyd API call, including the HMAC signature.
+     *
+     * @param httpMethod The HTTP method (e.g., "GET", "POST").
+     * @param path The request path (e.g., "/v1/data/countries"). For more information, see the Rapyd API documentation.
+     * @param body Optional request body.
+     * @return A map of headers including the access key, salt, timestamp, and signature.
+     */
+    private fun <T> generateHeaders(httpMethod: String, path: String, body: T? = null): Map<String, String> {
+        log.debug("Generating Rapyd API headers for HTTP method: $httpMethod, path: $path, body: $body")
         validateParameters(httpMethod, path)
         val preCallResult = preCall(httpMethod, path, body)
         val headers = createSigHeaders(
@@ -75,22 +116,29 @@ class HeadersService(
         return headers
     }
 
+    /**
+     * Validates the provided HTTP method and path.
+     *
+     * @param httpMethod The HTTP method.
+     * @param path The request path.
+     * @throws IllegalArgumentException If the HTTP method is not supported or the path does not start with '/'.
+     */
     private fun validateParameters(httpMethod: String, path: String) {
         require(httpMethod.lowercase() in SUPPORTED_HTTP_METHODS) {
-            "Method $httpMethod is not supported, supported methods: $SUPPORTED_HTTP_METHODS"
+            "Method $httpMethod is not supported. Supported methods are: $SUPPORTED_HTTP_METHODS"
         }
         require(path.startsWith("/")) {
-            "Path variable should start from '/'"
+            "Path must start with '/'"
         }
     }
 
     /**
-     * Prepares data needed for the signature generation: salt, timestamp, and HMAC signature.
+     * Prepares the data needed for the signature generation: salt, timestamp, and HMAC signature.
      *
      * @param httpMethod The HTTP method.
      * @param path The request path.
      * @param body Optional request body.
-     * @return A PreCallResult containing the salt, timestamp, and signature.
+     * @return A [PreCallResult] containing the salt, timestamp, and signature.
      */
     private fun <T> preCall(httpMethod: String, path: String, body: T? = null): PreCallResult {
         log.debug("Preparing pre-call data for HTTP method: $httpMethod, path: $path")
@@ -119,24 +167,27 @@ class HeadersService(
         )
     }
 
-
     /**
      * Generates a salt, timestamp, and HMAC signature based on the provided parameters.
      *
      * @param httpMethod The HTTP method.
      * @param path The request path.
      * @param body Optional request body.
-     * @return A Triple containing the salt, timestamp, and signature.
+     * @param customSalt Optional custom salt.
+     * @param customTimestamp Optional custom timestamp.
+     * @return A [Triple] containing the salt, timestamp, and signature.
      */
     private fun updateTimestampSaltSig(
         httpMethod: String,
         path: String,
-        body: String? = null
+        body: String? = null,
+        customSalt: String? = null,
+        customTimestamp: Long? = null
     ): Triple<String, Long, String> {
         log.debug("Updating timestamp, salt, and signature for HTTP method: $httpMethod, path: $path")
         val httpMethodLowerCase = httpMethod.lowercase()
-        val salt = generateSalt()
-        val timestamp = getUnixTime()
+        val salt = customSalt ?: generateSalt()
+        val timestamp = customTimestamp ?: getUnixTime()
         val toSign = "$httpMethodLowerCase$path$salt$timestamp$accessKey$secretKey${body ?: ""}"
 
         val strHashCode = hmacSha256(toSign, secretKey)
@@ -164,7 +215,6 @@ class HeadersService(
         log.debug("Generated HMAC signature: $signature")
         return signature
     }
-
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)
